@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+db.sqlite3
+local_settings.py
+staticfiles/
+
+# Variáveis de Ambiente e Segredos
+.env
+
+# Uploads e arquivos de mídia do usuário
+private_media/
+
+# IDEs e Ferramentas de desenvolvimento local
+.idea/
+.vscode/
+.agents/
+*.log

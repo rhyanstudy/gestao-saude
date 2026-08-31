@@ -1,0 +1,100 @@
+{% extends 'gestao/base.html' %}
+
+{% block title %}Painel do Usuário - GestãoSaúde{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-title">
+        <h1>Painel de Solicitações</h1>
+        <p>Acompanhe o status e envie novas documentações ou transferências de medicamentos.</p>
+    </div>
+</div>
+
+<div class="action-cards">
+    <div class="action-card">
+        <div>
+            <h3>Solicitar Transferência de Medicamentos</h3>
+            <p>Solicite a transferência de insumos e medicamentos entre unidades de saúde.</p>
+        </div>
+        <a href="{% url 'submit_medication' %}" class="btn btn-primary">Nova Solicitação 📦</a>
+    </div>
+
+    <div class="action-card">
+        <div>
+            <h3>Solicitação de Reajuste no CMM</h3>
+            <p>Solicite reajustes para valores de medicamentos do Catálogo de Medicamentos Padronizados.</p>
+        </div>
+        {% if can_create_cmm %}
+            <a href="{% url 'submit_cmm_request' %}" class="btn btn-primary">Novo Reajuste 📈</a>
+        {% else %}
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <span class="badge badge-returned" style="align-self: flex-start; text-transform: none;">⚠️ Possui solicitação ativa em andamento</span>
+                <a href="{% url 'request_detail' request_type='cmm' pk=active_cmm.id %}" class="btn btn-secondary">Ver Solicitação</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Requests Table Card -->
+<div class="card-container">
+    <div class="card-header">
+        <h2>Minhas Solicitações e Envios</h2>
+        <span class="badge badge-pending">{{ requests_list|length }} total</span>
+    </div>
+    
+    <div class="card-body" style="padding: 0;">
+        {% if requests_list %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tipo</th>
+                            <th>Descrição / Detalhes</th>
+                            <th>Data de Envio</th>
+                            <th>Status</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in requests_list %}
+                            <tr>
+                                <td style="font-weight: 600; color: hsl(var(--primary));">#{{ req.id }}</td>
+                                <td>
+                                    {% if req.type == 'Transferência' %}
+                                        <span style="font-weight: 500;">Transferência</span>
+                                    {% else %}
+                                        <span style="font-weight: 500;">Reajuste CMM</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ req.title }}</td>
+                                <td>{{ req.date|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    {% if req.status == 'PENDING' or req.status == 'OPEN' %}
+                                        <span class="badge badge-pending">{{ req.status_display }}</span>
+                                    {% elif req.status == 'IN_REVIEW' %}
+                                        <span class="badge badge-review">{{ req.status_display }}</span>
+                                    {% elif req.status == 'RETURNED' %}
+                                        <span class="badge badge-returned">{{ req.status_display }}</span>
+                                    {% elif req.status == 'COMPLETED' %}
+                                        <span class="badge badge-completed">{{ req.status_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'request_detail' request_type=req.full_type pk=req.id %}" class="btn btn-secondary btn-sm">Ver Detalhes</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="padding: 3rem; text-align: center; color: hsl(var(--muted-foreground));">
+                <span style="font-size: 2.5rem; display: block; margin-bottom: 1rem;">📭</span>
+                <p>Nenhuma solicitação encontrada.</p>
+                <p style="font-size: 0.875rem; margin-top: 0.25rem;">Use as opções acima para criar uma nova solicitação.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,5 @@
+# Dependências do GestãoSaúde
+Django>=5.2,<6.0
+PyMySQL
+whitenoise
+gunicorn

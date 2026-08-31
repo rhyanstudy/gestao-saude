@@ -1,0 +1,163 @@
+{% extends 'gestao/base.html' %}
+
+{% block title %}Solicitar Transferência - GestãoSaúde{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto;">
+    <div style="margin-bottom: 1.5rem;">
+        <a href="{% url 'user_dashboard' %}" class="btn btn-secondary btn-sm">⬅ Voltar ao Painel</a>
+    </div>
+
+    <div class="card-container">
+        <div class="card-header">
+            <h2>Solicitação de Transferência de Medicamento</h2>
+        </div>
+        
+        <div class="card-body">
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong>Erro ao submeter:</strong> Por favor, verifique os campos destacados abaixo.
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <form method="post" id="medication-form">
+                {% csrf_token %}
+                
+                <div class="form-grid" style="grid-template-columns: 1fr;">
+                    <div class="form-group" style="max-width: 50%;">
+                        <label>Unidade Solicitante</label>
+                        <input type="text" readonly value="{{ user_unit }}" class="form-control" style="background-color: hsl(var(--muted)/0.3); cursor: not-allowed; font-weight: 500;">
+                        <span class="file-help">Definido automaticamente pelo sistema para o seu usuário.</span>
+                    </div>
+                </div>
+
+                <hr style="margin: 2rem 0; border: 0; border-top: 1px solid hsl(var(--border));">
+                
+                <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem;">Itens e Medicamentos Solicitados</h3>
+                
+                <div id="transfer-items-container">
+                    <div class="form-grid transfer-item-row" style="align-items: flex-end; margin-bottom: 1.5rem; border-bottom: 1px dashed hsl(var(--border)); padding-bottom: 1.5rem; grid-template-columns: 2fr 1fr 1fr 1fr auto;">
+                        <div class="form-group">
+                            <label>Medicamento / Insumo <span style="color: red;">*</span></label>
+                            <input type="text" name="medication[]" required class="form-control" placeholder="Nome do Medicamento">
+                        </div>
+                        <div class="form-group">
+                            <label>Quantidade <span style="color: red;">*</span></label>
+                            <input type="number" name="quantity[]" required min="1" class="form-control" placeholder="Qtd">
+                        </div>
+                        <div class="form-group">
+                            <label>CMM Individual <span style="color: red;">*</span></label>
+                            <input type="number" name="cmm[]" required min="0" class="form-control" placeholder="CMM Item">
+                        </div>
+                        <div class="form-group">
+                            <label>Código SUPRI <span style="color: red;">*</span></label>
+                            <input type="text" name="supri_code[]" required class="form-control" placeholder="SUPRI (Numérico)">
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end; justify-content: flex-end;">
+                            <button type="button" class="btn btn-danger remove-row-btn" style="width: 100%;">Remover</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem; margin-bottom: 2rem;">
+                    <button type="button" class="btn btn-secondary btn-sm" id="add-row-btn">➕ Adicionar Item</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_observation">Observação / Justificativa (Opcional)</label>
+                    {{ form.observation }}
+                    <span class="file-help">{{ form.observation.errors }}</span>
+                </div>
+
+                <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                    <a href="{% url 'user_dashboard' %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary" id="submit-btn">Enviar Solicitação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('transfer-items-container');
+        const addBtn = document.getElementById('add-row-btn');
+        const form = document.getElementById('medication-form');
+        
+        // Add dynamic row
+        addBtn.addEventListener('click', function() {
+            const newRow = document.createElement('div');
+            newRow.className = 'form-grid transfer-item-row';
+            newRow.style.cssText = 'align-items: flex-end; margin-bottom: 1.5rem; border-bottom: 1px dashed hsl(var(--border)); padding-bottom: 1.5rem; grid-template-columns: 2fr 1fr 1fr 1fr auto;';
+            newRow.innerHTML = `
+                <div class="form-group">
+                    <label>Medicamento / Insumo <span style="color: red;">*</span></label>
+                    <input type="text" name="medication[]" required class="form-control" placeholder="Nome do Medicamento">
+                </div>
+                <div class="form-group">
+                    <label>Quantidade <span style="color: red;">*</span></label>
+                    <input type="number" name="quantity[]" required min="1" class="form-control" placeholder="Qtd">
+                </div>
+                <div class="form-group">
+                    <label>CMM Individual <span style="color: red;">*</span></label>
+                    <input type="number" name="cmm[]" required min="0" class="form-control" placeholder="CMM Item">
+                </div>
+                <div class="form-group">
+                    <label>Código SUPRI <span style="color: red;">*</span></label>
+                    <input type="text" name="supri_code[]" required class="form-control" placeholder="SUPRI (Numérico)">
+                </div>
+                <div class="form-group" style="display: flex; align-items: flex-end; justify-content: flex-end;">
+                    <button type="button" class="btn btn-danger remove-row-btn" style="width: 100%;">Remover</button>
+                </div>
+            `;
+            container.appendChild(newRow);
+            bindRemoveButtons();
+        });
+
+        function bindRemoveButtons() {
+            const removeBtns = container.querySelectorAll('.remove-row-btn');
+            removeBtns.forEach(btn => {
+                btn.removeEventListener('click', removeRow);
+                btn.addEventListener('click', removeRow);
+            });
+        }
+
+        function removeRow(e) {
+            const rows = container.querySelectorAll('.transfer-item-row');
+            if (rows.length <= 1) {
+                alert("Você deve ter pelo menos um medicamento cadastrado na solicitação.");
+                return;
+            }
+            e.target.closest('.transfer-item-row').remove();
+        }
+
+        form.addEventListener('submit', function(e) {
+            const rows = container.querySelectorAll('.transfer-item-row');
+            if (rows.length === 0) {
+                e.preventDefault();
+                alert("Você deve adicionar pelo menos um item para prosseguir.");
+                return;
+            }
+            
+            // Check numeric SUPRI code
+            let allSupriValid = true;
+            container.querySelectorAll('input[name="supri_code[]"]').forEach(input => {
+                if (!/^\d+$/.test(input.value.strip ? input.value.strip() : input.value)) {
+                    allSupriValid = false;
+                }
+            });
+            
+            if (!allSupriValid) {
+                e.preventDefault();
+                alert("O código SUPRI deve ser estritamente numérico.");
+            }
+        });
+
+        // Initialize
+        bindRemoveButtons();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'gestao/base.html' %}
+
+{% block title %}Entrar - GestãoSaúde{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-logo">
+            <h1>🏥 GestãoSaúde</h1>
+            <p>Portal de solicitações farmacêuticas</p>
+        </div>
+
+        {% if messages %}
+            <div class="alert alert-danger">
+                {% for msg in messages %}
+                    {{ msg }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="username_select" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Selecione o Usuário de Teste</label>
+                <select name="username" id="username_select" class="form-control" style="font-size: 1rem; padding: 0.75rem; height: auto; border-radius: var(--radius); border: 1px solid hsl(var(--border)); width: 100%; cursor: pointer;">
+                    <option value="user1">user1 - UBS Jardim das Palmeiras (Solicitante)</option>
+                    <option value="user2">user2 - UPA Zona Norte (Solicitante)</option>
+                    <option value="admin1">admin1 - Administrador (Gestor)</option>
+                </select>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Entrar no Portal</button>
+            </div>
+        </form>
+
+        <div style="margin-top: 1.5rem; font-size: 0.8125rem; color: var(--muted-foreground); text-align: center; border-top: 1px solid var(--border); padding-top: 1rem;">
+            <p>Os perfis, unidades e permissões de acesso já vêm configurados para cada usuário de teste.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

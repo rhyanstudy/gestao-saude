@@ -1,0 +1,217 @@
+{% extends 'gestao/base.html' %}
+
+{% block title %}Detalhes do Pedido #{{ obj.id }} - GestãoSaúde{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+    <a href="{% url 'dashboard_redirect' %}" class="btn btn-secondary btn-sm">Voltar ao Painel</a>
+
+    <div style="font-size: 0.875rem; color: hsl(var(--muted-foreground));">
+        Criado em: <strong>{{ obj.created_at|date:"d/m/Y \à\s H:i" }}</strong>
+    </div>
+</div>
+
+{% if obj.status == 'RETURNED' and obj.admin_observation %}
+    <div class="observation-box">
+        <h4>Observação de Retorno do Administrador</h4>
+        <p>{{ obj.admin_observation }}</p>
+    </div>
+{% endif %}
+
+<div class="details-grid">
+    <div class="card-container">
+        <div class="card-header">
+            <h2>
+                {% if request_type == 'medication' %}
+                    Detalhes da Transferência de Medicamento
+                {% else %}
+                    Detalhes do Reajuste no CMM
+                {% endif %}
+                <span style="font-weight: normal; color: hsl(var(--muted-foreground));">#{{ obj.id }}</span>
+            </h2>
+        </div>
+
+        <div class="card-body">
+            {% if request_type == 'medication' %}
+                <div class="form-grid">
+                    <div class="info-item" style="max-width: 50%;">
+                        <div class="info-label">Unidade Solicitante</div>
+                        <div class="info-value">{{ obj.requesting_unit }}</div>
+                    </div>
+                </div>
+
+                <div class="info-item" style="margin-top: 1.5rem;">
+                    <div class="info-label" style="margin-bottom: 0.5rem;">Itens e Medicamentos Solicitados</div>
+                    <table class="table" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid hsl(var(--border)); text-align: left; background-color: hsl(var(--muted)/0.2);">
+                                <th style="padding: 0.75rem 0.5rem;">Medicamento</th>
+                                <th style="padding: 0.75rem 0.5rem;">Quantidade</th>
+                                <th style="padding: 0.75rem 0.5rem;">CMM Item</th>
+                                <th style="padding: 0.75rem 0.5rem;">Código SUPRI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in obj.items.all %}
+                                <tr style="border-bottom: 1px solid hsl(var(--border));">
+                                    <td style="padding: 0.75rem 0.5rem; font-weight: 500;">{{ item.medication }}</td>
+                                    <td style="padding: 0.75rem 0.5rem;">{{ item.quantity }} un</td>
+                                    <td style="padding: 0.75rem 0.5rem;">{{ item.cmm }} un</td>
+                                    <td style="padding: 0.75rem 0.5rem; font-family: monospace;">{{ item.supri_code }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" style="padding: 1rem; text-align: center; color: hsl(var(--muted-foreground));">Sem itens registrados.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if obj.observation %}
+                    <div class="info-item" style="margin-top: 1.5rem;">
+                        <div class="info-label">Observação / Justificativa do Usuário</div>
+                        <div class="info-value" style="font-weight: normal; font-style: italic;">{{ obj.observation }}</div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="form-grid">
+                    <div class="info-item">
+                        <div class="info-label">Unidade de Saúde</div>
+                        <div class="info-value">{{ obj.health_unit }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Data para Efetivação</div>
+                        <div class="info-value">{{ obj.effective_date|date:"d/m/Y" }}</div>
+                    </div>
+                </div>
+
+                <div class="form-grid" style="margin-top: 1rem;">
+                    <div class="info-item">
+                        <div class="info-label">Responsável pela Solicitação</div>
+                        <div class="info-value">{{ obj.requester_name }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">Função do Responsável</div>
+                        <div class="info-value">{{ obj.requester_role }}</div>
+                    </div>
+                </div>
+
+                <div class="info-item" style="margin-top: 1.5rem;">
+                    <div class="info-label" style="margin-bottom: 0.5rem;">Medicamentos e Reajustes</div>
+                    <table class="table" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid hsl(var(--border)); text-align: left; background-color: hsl(var(--muted)/0.2);">
+                                <th style="padding: 0.75rem 0.5rem;">Medicamento</th>
+                                <th style="padding: 0.75rem 0.5rem;">Qtd Atual</th>
+                                <th style="padding: 0.75rem 0.5rem;">Nova Qtd</th>
+                                <th style="padding: 0.75rem 0.5rem;">Código SUPRI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in obj.items.all %}
+                                <tr style="border-bottom: 1px solid hsl(var(--border));">
+                                    <td style="padding: 0.75rem 0.5rem; font-weight: 500;">{{ item.medication }}</td>
+                                    <td style="padding: 0.75rem 0.5rem;">{{ item.current_quantity }} un</td>
+                                    <td style="padding: 0.75rem 0.5rem;">{{ item.new_quantity }} un</td>
+                                    <td style="padding: 0.75rem 0.5rem; font-family: monospace;">{{ item.supri_code }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" style="padding: 1rem; text-align: center; color: hsl(var(--muted-foreground));">Sem medicamentos registrados.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if obj.observation %}
+                    <div class="info-item" style="margin-top: 1.5rem;">
+                        <div class="info-label">Observações do Usuário</div>
+                        <div class="info-value" style="font-weight: normal; font-style: italic;">{{ obj.observation }}</div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div class="card-container">
+            <div class="card-header">
+                <h2>Estado Atual</h2>
+            </div>
+            <div class="card-body" style="text-align: center; padding: 2rem 1.5rem;">
+                <div style="margin-bottom: 1rem;">
+                    {% if obj.status == 'PENDING' or obj.status == 'OPEN' %}
+                        <span class="badge badge-pending" style="padding: 0.5rem 1.5rem; font-size: 0.875rem;">{{ obj.get_status_display }}</span>
+                    {% elif obj.status == 'IN_REVIEW' %}
+                        <span class="badge badge-review" style="padding: 0.5rem 1.5rem; font-size: 0.875rem;">{{ obj.get_status_display }}</span>
+                    {% elif obj.status == 'RETURNED' %}
+                        <span class="badge badge-returned" style="padding: 0.5rem 1.5rem; font-size: 0.875rem;">{{ obj.get_status_display }}</span>
+                    {% elif obj.status == 'COMPLETED' %}
+                        <span class="badge badge-completed" style="padding: 0.5rem 1.5rem; font-size: 0.875rem;">{{ obj.get_status_display }}</span>
+                    {% endif %}
+                </div>
+                <p style="font-size: 0.8125rem; color: hsl(var(--muted-foreground));">
+                    Criado por: <strong>{{ obj.user.username }}</strong>
+                </p>
+                <p style="font-size: 0.8125rem; color: hsl(var(--muted-foreground)); margin-top: 0.25rem;">
+                    Última atualização: <strong>{{ obj.updated_at|date:"d/m/Y H:i" }}</strong>
+                </p>
+
+                {% if is_owner and request_type == 'cmm' and obj.status != 'COMPLETED' %}
+                    <div style="margin-top: 1.5rem; border-top: 1px solid hsl(var(--border)); padding-top: 1.5rem;">
+                        <a href="{% url 'edit_cmm_request' pk=obj.id %}" class="btn btn-primary" style="width: 100%;">Editar Solicitação</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if user.is_staff %}
+            <div class="card-container" style="border-color: hsl(var(--primary) / 0.3);">
+                <div class="card-header" style="background-color: hsl(var(--primary) / 0.05);">
+                    <h2>Ações do Administrador</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label for="admin_status">Definir Novo Status</label>
+                            <select name="status" id="admin_status" class="form-control">
+                                {% for val, label in status_choices %}
+                                    <option value="{{ val }}" {% if obj.status == val %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="observation-group">
+                            <label for="admin_observation">Observação / Justificativa</label>
+                            <textarea name="admin_observation" id="admin_observation" class="form-control" rows="4" placeholder="Motivo do retorno ou notas adicionais...">{% if obj.admin_observation %}{{ obj.admin_observation }}{% endif %}</textarea>
+                        </div>
+
+                        <div style="margin-top: 1.5rem;">
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% elif obj.status == 'COMPLETED' %}
+            <div class="card-container" style="border-color: hsl(var(--status-completed-text) / 0.3); background-color: hsl(var(--status-completed-bg) / 0.3);">
+                <div class="card-body" style="text-align: center; padding: 1.5rem;">
+                    <h3 style="font-size: 1rem; color: hsl(var(--status-completed-text)); font-weight: 600;">Solicitação Concluída</h3>
+                    <p style="font-size: 0.8125rem; color: hsl(var(--status-completed-text)); margin-top: 0.25rem;">
+                        {% if obj.admin_observation %}
+                            {{ obj.admin_observation }}
+                        {% else %}
+                            Esta solicitação foi analisada e aprovada.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

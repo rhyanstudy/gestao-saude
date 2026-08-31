@@ -1,0 +1,270 @@
+{% extends 'gestao/base.html' %}
+
+{% block title %}Novo Reajuste CMM - GestãoSaúde{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <div style="margin-bottom: 1.5rem;">
+        {% if is_edit %}
+            <a href="{% url 'request_detail' request_type='cmm' pk=obj.id %}" class="btn btn-secondary btn-sm">⬅ Voltar aos Detalhes</a>
+        {% else %}
+            <a href="{% url 'user_dashboard' %}" class="btn btn-secondary btn-sm">⬅ Voltar ao Painel</a>
+        {% endif %}
+    </div>
+
+    <div class="card-container">
+        <div class="card-header">
+            <h2>{% if is_edit %}Editar Solicitação de Reajuste no CMM{% else %}Solicitação de Reajuste no CMM{% endif %}</h2>
+        </div>
+        
+        <div class="card-body">
+            <div id="date-warning" class="alert alert-danger" style="display: none; margin-bottom: 1.5rem;"></div>
+
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong>Erro ao salvar:</strong> Por favor, corrija as marcações abaixo.
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <form method="post" id="cmm-form">
+                {% csrf_token %}
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unidade de Saúde Solicitante</label>
+                        <input type="text" readonly value="{{ user_unit }}" class="form-control" style="background-color: hsl(var(--muted)/0.3); cursor: not-allowed; font-weight: 500;">
+                        <span class="file-help">Puxado automaticamente com base no seu usuário.</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_effective_date">Data para Efetivação do Reajuste <span style="color: red;">*</span></label>
+                        {{ form.effective_date }}
+                        <span class="file-help">A data deve ser hoje ou posterior e obrigatoriamente uma <strong>terça-feira</strong>. {{ form.effective_date.errors }}</span>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="id_requester_name">Responsável pela Solicitação <span style="color: red;">*</span></label>
+                        {{ form.requester_name }}
+                        <span class="file-help">{{ form.requester_name.errors }}</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_requester_role">Função do Responsável <span style="color: red;">*</span></label>
+                        {{ form.requester_role }}
+                        <span class="file-help">{{ form.requester_role.errors }}</span>
+                    </div>
+                </div>
+
+                <hr style="margin: 2rem 0; border: 0; border-top: 1px solid hsl(var(--border));">
+                
+                <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem;">Medicamentos a serem Reajustados</h3>
+                
+                <div id="medication-items-container">
+                    {% if is_edit %}
+                        {% for item in obj.items.all %}
+                            <div class="form-grid medication-item-row" style="align-items: flex-end; margin-bottom: 1.5rem; border-bottom: 1px dashed hsl(var(--border)); padding-bottom: 1.5rem;">
+                                <div class="form-group">
+                                    <label>Medicamento <span style="color: red;">*</span></label>
+                                    <input type="text" name="medication[]" value="{{ item.medication }}" required class="form-control" placeholder="Nome do Medicamento">
+                                </div>
+                                <div class="form-group">
+                                    <label>Quantidade Atual <span style="color: red;">*</span></label>
+                                    <input type="number" name="current_quantity[]" value="{{ item.current_quantity }}" required min="0" class="form-control" placeholder="Qtd Atual">
+                                </div>
+                                <div class="form-group">
+                                    <label>Nova Quantidade <span style="color: red;">*</span></label>
+                                    <input type="number" name="new_quantity[]" value="{{ item.new_quantity }}" required min="0" class="form-control" placeholder="Qtd Nova">
+                                </div>
+                                <div class="form-group">
+                                    <label>Código SUPRI <span style="color: red;">*</span></label>
+                                    <input type="text" name="supri_code[]" value="{{ item.supri_code }}" required class="form-control" placeholder="Código SUPRI">
+                                </div>
+                                <div class="form-group" style="display: flex; align-items: flex-end; justify-content: flex-end;">
+                                    <button type="button" class="btn btn-danger remove-row-btn" style="width: 100%;">Remover</button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="form-grid medication-item-row" style="align-items: flex-end; margin-bottom: 1.5rem; border-bottom: 1px dashed hsl(var(--border)); padding-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label>Medicamento <span style="color: red;">*</span></label>
+                                <input type="text" name="medication[]" required class="form-control" placeholder="Nome do Medicamento">
+                            </div>
+                            <div class="form-group">
+                                <label>Quantidade Atual <span style="color: red;">*</span></label>
+                                <input type="number" name="current_quantity[]" required min="0" class="form-control" placeholder="Qtd Atual">
+                            </div>
+                            <div class="form-group">
+                                <label>Nova Quantidade <span style="color: red;">*</span></label>
+                                <input type="number" name="new_quantity[]" required min="0" class="form-control" placeholder="Qtd Nova">
+                            </div>
+                            <div class="form-group">
+                                <label>Código SUPRI <span style="color: red;">*</span></label>
+                                <input type="text" name="supri_code[]" required class="form-control" placeholder="Código SUPRI">
+                            </div>
+                            <div class="form-group" style="display: flex; align-items: flex-end; justify-content: flex-end;">
+                                <button type="button" class="btn btn-danger remove-row-btn" style="width: 100%;">Remover</button>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div style="margin-top: 1rem; margin-bottom: 2rem;">
+                    <button type="button" class="btn btn-secondary btn-sm" id="add-row-btn">➕ Adicionar Medicamento</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_observation">Observações / Justificativas (Opcional)</label>
+                    {{ form.observation }}
+                    <span class="file-help">{{ form.observation.errors }}</span>
+                </div>
+
+                <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                    {% if is_edit %}
+                        <a href="{% url 'request_detail' request_type='cmm' pk=obj.id %}" class="btn btn-secondary">Cancelar</a>
+                    {% else %}
+                        <a href="{% url 'user_dashboard' %}" class="btn btn-secondary">Cancelar</a>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary" id="submit-btn">Salvar Solicitação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.getElementById('id_effective_date');
+        const submitBtn = document.getElementById('submit-btn');
+        const warningDiv = document.getElementById('date-warning');
+        const form = document.getElementById('cmm-form');
+        const container = document.getElementById('medication-items-container');
+        const addBtn = document.getElementById('add-row-btn');
+        
+        // Dynamic field addition
+        addBtn.addEventListener('click', function() {
+            const newRow = document.createElement('div');
+            newRow.className = 'form-grid medication-item-row';
+            newRow.style.cssText = 'align-items: flex-end; margin-bottom: 1.5rem; border-bottom: 1px dashed hsl(var(--border)); padding-bottom: 1.5rem;';
+            newRow.innerHTML = `
+                <div class="form-group">
+                    <label>Medicamento <span style="color: red;">*</span></label>
+                    <input type="text" name="medication[]" required class="form-control" placeholder="Nome do Medicamento">
+                </div>
+                <div class="form-group">
+                    <label>Quantidade Atual <span style="color: red;">*</span></label>
+                    <input type="number" name="current_quantity[]" required min="0" class="form-control" placeholder="Qtd Atual">
+                </div>
+                <div class="form-group">
+                    <label>Nova Quantidade <span style="color: red;">*</span></label>
+                    <input type="number" name="new_quantity[]" required min="0" class="form-control" placeholder="Qtd Nova">
+                </div>
+                <div class="form-group">
+                    <label>Código SUPRI <span style="color: red;">*</span></label>
+                    <input type="text" name="supri_code[]" required class="form-control" placeholder="Código SUPRI">
+                </div>
+                <div class="form-group" style="display: flex; align-items: flex-end; justify-content: flex-end;">
+                    <button type="button" class="btn btn-danger remove-row-btn" style="width: 100%;">Remover</button>
+                </div>
+            `;
+            container.appendChild(newRow);
+            bindRemoveButtons();
+        });
+
+        function bindRemoveButtons() {
+            const removeBtns = container.querySelectorAll('.remove-row-btn');
+            removeBtns.forEach(btn => {
+                btn.removeEventListener('click', removeRow);
+                btn.addEventListener('click', removeRow);
+            });
+        }
+
+        function removeRow(e) {
+            const rows = container.querySelectorAll('.medication-item-row');
+            if (rows.length <= 1) {
+                alert("Você deve ter pelo menos um medicamento cadastrado.");
+                return;
+            }
+            e.target.closest('.medication-item-row').remove();
+        }
+
+        function validateDate() {
+            if (!dateInput.value) {
+                warningDiv.style.display = 'none';
+                submitBtn.disabled = false;
+                return true;
+            }
+            
+            const dateParts = dateInput.value.split('-');
+            const year = parseInt(dateParts[0], 10);
+            const month = parseInt(dateParts[1], 10) - 1;
+            const day = parseInt(dateParts[2], 10);
+            const dateObj = new Date(year, month, day);
+            const weekday = dateObj.getDay();
+            
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            dateObj.setHours(0,0,0,0);
+
+            if (dateObj < today) {
+                warningDiv.style.display = 'block';
+                warningDiv.innerHTML = `⚠️ <strong>Bloqueado:</strong> A data para efetivação do reajuste não pode ser anterior à data de hoje.`;
+                submitBtn.disabled = true;
+                return false;
+            } else if (weekday !== 2) {
+                warningDiv.style.display = 'block';
+                warningDiv.innerHTML = `⚠️ <strong>Bloqueado:</strong> A data selecionada é um(a) <strong>${getWeekdayName(weekday)}</strong>. A data para efetivação do reajuste CMM deve ser obrigatoriamente uma <strong>terça-feira</strong>.`;
+                submitBtn.disabled = true;
+                return false;
+            } else {
+                warningDiv.style.display = 'none';
+                submitBtn.disabled = false;
+                return true;
+            }
+        }
+        
+        function getWeekdayName(dayIndex) {
+            const weekdays = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+            return weekdays[dayIndex] || "desconhecido";
+        }
+        
+        dateInput.addEventListener('change', validateDate);
+        
+        form.addEventListener('submit', function(e) {
+            const rows = container.querySelectorAll('.medication-item-row');
+            if (rows.length === 0) {
+                e.preventDefault();
+                alert("Você deve adicionar pelo menos um medicamento para prosseguir.");
+                return;
+            }
+            if (!validateDate()) {
+                e.preventDefault();
+                alert("Não é permitido enviar. A data deve ser uma terça-feira e não pode ser anterior a hoje.");
+                return;
+            }
+
+            // Check numeric SUPRI code
+            let allSupriValid = true;
+            container.querySelectorAll('input[name="supri_code[]"]').forEach(input => {
+                if (!/^\d+$/.test(input.value.trim())) {
+                    allSupriValid = false;
+                }
+            });
+            
+            if (!allSupriValid) {
+                e.preventDefault();
+                alert("O código SUPRI deve ser estritamente numérico.");
+            }
+        });
+
+        // Initialize
+        bindRemoveButtons();
+        validateDate();
+    });
+</script>
+{% endblock %}

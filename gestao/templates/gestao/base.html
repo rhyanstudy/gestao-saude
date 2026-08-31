@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gestão de Saúde{% endblock %}</title>
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="{% static 'gestao/css/styles.css' %}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="nav-container">
+            <a href="{% url 'dashboard_redirect' %}" class="brand">
+                <span class="brand-icon">🏥</span>
+                <span>GestãoSaúde</span>
+            </a>
+            
+            {% if user.is_authenticated %}
+                <ul class="nav-links">
+                    <li class="user-info">
+                        <span>Olá, <strong>{{ user.username }}</strong></span>
+                        <span class="role-badge">
+                            {% if user.is_staff %}
+                                Admin
+                            {% else %}
+                                Usuário
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li>
+                        <a href="{% url 'dashboard_redirect' %}" class="btn btn-secondary btn-sm">Painel</a>
+                    </li>
+                    <li>
+                        <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Sair</button>
+                        </form>
+                    </li>
+                </ul>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main>
+        <!-- Django Flash Messages -->
+        {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+                        {{ message.message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; {% now "Y" %} GestãoSaúde — Portal de solicitações farmacêuticas.</p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
