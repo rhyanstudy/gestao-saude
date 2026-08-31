@@ -2,7 +2,7 @@
 
 Portal web para unidades de saúde pública solicitarem remanejamento de medicamentos e reajuste de Consumo Médio Mensal (CMM). O sistema centraliza pedidos, acompanha status e dá visibilidade à equipe administrativa — substituindo planilhas e formulários em papel que geram retrabalho e falta de rastreio.
 
-Projeto desenvolvido como portfólio para candidatura a estágio.
+Projeto desenvolvido para gestão de unidade regional de supervisão de saúde pública, posteriormente generalizada para utilizar como portfólio.
 
 ## O problema
 
@@ -30,11 +30,11 @@ Em municípios, UBS e UPAs precisam pedir medicamentos de outras unidades e ajus
 
 | Tecnologia | Por quê |
 |---|---|
-| **Python + Django** | Framework maduro para CRUD, autenticação e validação server-side. Bom para sistemas internos com regras de negócio. |
+| **Python + Django** | Framework maduro para CRUD, autenticação e validação server-side. Bom para sistemas internos com regras de negócio. Rápida prototipação |
 | **MySQL** | Banco relacional comum em ambientes de saúde pública e fácil de hospedar. |
 | **WhiteNoise** | Serve arquivos estáticos em produção sem configurar nginx só para CSS. |
 | **Gunicorn** | Servidor WSGI para deploy (ex.: Render, Railway). |
-| **Cursor (AI-powered Development)** | Usei o Cursor em momentos pontuais — boilerplate de formulários, revisão de testes, ajustes de template. A arquitetura, as regras de negócio e as decisões de segurança foram minhas; a IA acelerou tarefas repetitivas, não substituiu o raciocínio do projeto. |
+| **Cursor (AI-powered Development)** | Usei o Cursor em momentos pontuais — boilerplate de formulários, revisão de testes, ajustes de template. A arquitetura, as regras de negócio e as decisões de segurança foram definidas junto ao cliente original; a IA acelerou tarefas repetitivas. |
 
 ## Como rodar localmente
 
@@ -142,4 +142,4 @@ requirements.txt
 
 ## Licença
 
-Projeto de portfólio — uso livre para estudo e referência.
+Projeto Placeholder — uso livre para estudo e referência.
