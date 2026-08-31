@@ -16,7 +16,7 @@
             <h3>Solicitar Transferência de Medicamentos</h3>
             <p>Solicite a transferência de insumos e medicamentos entre unidades de saúde.</p>
         </div>
-        <a href="{% url 'submit_medication' %}" class="btn btn-primary">Nova Solicitação 📦</a>
+        <a href="{% url 'submit_medication' %}" class="btn btn-primary">Nova Solicitação</a>
     </div>
 
     <div class="action-card">
@@ -25,10 +25,10 @@
             <p>Solicite reajustes para valores de medicamentos do Catálogo de Medicamentos Padronizados.</p>
         </div>
         {% if can_create_cmm %}
-            <a href="{% url 'submit_cmm_request' %}" class="btn btn-primary">Novo Reajuste 📈</a>
+            <a href="{% url 'submit_cmm_request' %}" class="btn btn-primary">Novo Reajuste</a>
         {% else %}
             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                <span class="badge badge-returned" style="align-self: flex-start; text-transform: none;">⚠️ Possui solicitação ativa em andamento</span>
+                <span class="badge badge-returned" style="align-self: flex-start; text-transform: none;">Possui solicitação ativa em andamento</span>
                 <a href="{% url 'request_detail' request_type='cmm' pk=active_cmm.id %}" class="btn btn-secondary">Ver Solicitação</a>
             </div>
         {% endif %}
@@ -90,7 +90,6 @@
             </div>
         {% else %}
             <div style="padding: 3rem; text-align: center; color: hsl(var(--muted-foreground));">
-                <span style="font-size: 2.5rem; display: block; margin-bottom: 1rem;">📭</span>
                 <p>Nenhuma solicitação encontrada.</p>
                 <p style="font-size: 0.875rem; margin-top: 0.25rem;">Use as opções acima para criar uma nova solicitação.</p>
             </div>

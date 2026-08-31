@@ -6,7 +6,7 @@
 <div class="dashboard-header">
     <div class="dashboard-title">
         <h1>Painel de Controle - Admin</h1>
-        <p>Monitore, analise documentos e atualize o status de todas as solicitações do sistema.</p>
+        <p>Monitore e atualize o status de todas as solicitações do sistema.</p>
     </div>
 </div>
 
@@ -17,7 +17,7 @@
             <div class="stat-label">Pendentes</div>
             <div class="stat-value">{{ pending_count }}</div>
         </div>
-        <div class="stat-icon">📥</div>
+        <div class="stat-icon"></div>
     </div>
 
     <div class="stat-card" style="border-left: 4px solid hsl(var(--status-review-text));">
@@ -25,7 +25,7 @@
             <div class="stat-label">Em Análise</div>
             <div class="stat-value">{{ review_count }}</div>
         </div>
-        <div class="stat-icon">🔍</div>
+        <div class="stat-icon"></div>
     </div>
 
     <div class="stat-card" style="border-left: 4px solid hsl(var(--status-returned-text));">
@@ -33,7 +33,7 @@
             <div class="stat-label">Retornados</div>
             <div class="stat-value">{{ returned_count }}</div>
         </div>
-        <div class="stat-icon">⚠️</div>
+        <div class="stat-icon"></div>
     </div>
 
     <div class="stat-card" style="border-left: 4px solid hsl(var(--status-completed-text));">
@@ -41,7 +41,7 @@
             <div class="stat-label">Concluídos</div>
             <div class="stat-value">{{ completed_count }}</div>
         </div>
-        <div class="stat-icon">✅</div>
+        <div class="stat-icon"></div>
     </div>
 </div>
 
@@ -73,7 +73,7 @@
                         {% for req in requests_list %}
                             <tr>
                                 <td style="font-weight: 600; color: hsl(var(--primary));">#{{ req.id }}</td>
-                                <td style="font-weight: 500;">👤 {{ req.user }}</td>
+                                <td style="font-weight: 500;">{{ req.user }}</td>
                                 <td>
                                     {% if req.type == 'Transferência' %}
                                         <span style="font-weight: 500;">Transferência</span>
@@ -104,7 +104,6 @@
             </div>
         {% else %}
             <div style="padding: 3rem; text-align: center; color: hsl(var(--muted-foreground));">
-                <span style="font-size: 2.5rem; display: block; margin-bottom: 1rem;">📭</span>
                 <p>Nenhuma solicitação encontrada no sistema.</p>
             </div>
         {% endif %}
