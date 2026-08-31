@@ -48,7 +48,7 @@ Em municípios, UBS e UPAs precisam pedir medicamentos de outras unidades e ajus
 1. Clone o repositório e entre na pasta:
 
 ```bash
-git clone https://github.com/SEU_USUARIO/gestao-saude.git
+git clone https://github.com/rhyanstudy/gestao-saude.git
 cd gestao-saude
 ```
 
